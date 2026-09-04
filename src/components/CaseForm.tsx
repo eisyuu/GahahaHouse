@@ -1,5 +1,6 @@
 import type { CaseRecord, Customer } from "@/lib/types";
 import { LineItemsEditor } from "./LineItemsEditor";
+import { CustomerSelectField } from "./CustomerSelectField";
 
 interface Props {
   caseRecord?: CaseRecord;
@@ -20,21 +21,7 @@ export function CaseForm({ caseRecord, customers, action }: Props) {
     <form action={action} className="space-y-4 max-w-3xl">
       <div>
         <label className={labelClass}>顧客 *</label>
-        <select
-          name="customerId"
-          defaultValue={caseRecord?.customerId ?? ""}
-          required
-          className={inputClass}
-        >
-          <option value="" disabled>
-            選択してください
-          </option>
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.companyName}
-            </option>
-          ))}
-        </select>
+        <CustomerSelectField customers={customers} defaultCustomerId={caseRecord?.customerId} />
       </div>
 
       <div>

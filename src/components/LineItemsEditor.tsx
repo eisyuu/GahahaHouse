@@ -8,7 +8,7 @@ interface Row {
   description: string;
   quantity: number;
   unit: string;
-  unitPrice: number;
+  unitPrice: string;
   taxRate: TaxRateOption;
 }
 
@@ -23,11 +23,11 @@ function toRows(lineItems?: LineItem[]): Row[] {
       description: item.description,
       quantity: item.quantity,
       unit: item.unit ?? "",
-      unitPrice: item.unitPrice,
+      unitPrice: String(item.unitPrice),
       taxRate: item.taxRate,
     }));
   }
-  return [{ key: crypto.randomUUID(), description: "", quantity: 1, unit: "式", unitPrice: 0, taxRate: 10 }];
+  return [{ key: crypto.randomUUID(), description: "", quantity: 1, unit: "式", unitPrice: "", taxRate: 10 }];
 }
 
 const inputClass = "w-full rounded border border-gray-300 px-2 py-1 text-sm";
@@ -46,7 +46,7 @@ export function LineItemsEditor({ initialLineItems }: Props) {
   function addRow() {
     setRows((prev) => [
       ...prev,
-      { key: crypto.randomUUID(), description: "", quantity: 1, unit: "式", unitPrice: 0, taxRate: 10 },
+      { key: crypto.randomUUID(), description: "", quantity: 1, unit: "式", unitPrice: "", taxRate: 10 },
     ]);
   }
 
@@ -54,15 +54,18 @@ export function LineItemsEditor({ initialLineItems }: Props) {
     setRows((prev) => (prev.length > 1 ? prev.filter((row) => row.key !== key) : prev));
   }
 
-  const summary = rows.reduce(
-    (acc, row) => {
-      const amount = Math.round(row.quantity * row.unitPrice);
-      acc.subtotal += amount;
-      if (row.taxRate !== 0) acc.tax += Math.round(amount * (row.taxRate / 100));
-      return acc;
-    },
-    { subtotal: 0, tax: 0 },
-  );
+  const taxableByRate = new Map<TaxRateOption, number>();
+  let subtotal = 0;
+  for (const row of rows) {
+    const amount = Math.round(row.quantity * (Number(row.unitPrice) || 0));
+    subtotal += amount;
+    taxableByRate.set(row.taxRate, (taxableByRate.get(row.taxRate) ?? 0) + amount);
+  }
+  let tax = 0;
+  for (const [rate, taxableAmount] of taxableByRate) {
+    if (rate !== 0) tax += Math.round(taxableAmount * (rate / 100));
+  }
+  const summary = { subtotal, tax };
 
   return (
     <div>
@@ -114,8 +117,9 @@ export function LineItemsEditor({ initialLineItems }: Props) {
                   name="unitPrice"
                   type="number"
                   step="any"
+                  placeholder="0"
                   value={row.unitPrice}
-                  onChange={(e) => updateRow(row.key, { unitPrice: Number(e.target.value) })}
+                  onChange={(e) => updateRow(row.key, { unitPrice: e.target.value })}
                   className={inputClass}
                   required
                 />
@@ -132,7 +136,7 @@ export function LineItemsEditor({ initialLineItems }: Props) {
                   <option value={0}>対象外</option>
                 </select>
               </td>
-              <td className="py-1 pr-2 text-right">{formatYen(row.quantity * row.unitPrice)}</td>
+              <td className="py-1 pr-2 text-right">{formatYen(row.quantity * (Number(row.unitPrice) || 0))}</td>
               <td className="py-1 text-center">
                 <button
                   type="button"

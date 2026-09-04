@@ -5,6 +5,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createCustomer, deleteCustomer, updateCustomer } from "@/lib/db/customers";
 import { listCasesByCustomer } from "@/lib/db/cases";
+import type { Customer } from "@/lib/types";
+
+const quickAddSchema = z.object({
+  companyName: z.string().min(1),
+  address: z.string().min(1),
+  contactName: z.string().optional(),
+});
 
 const schema = z.object({
   companyName: z.string().min(1),
@@ -47,6 +54,17 @@ export async function updateCustomerAction(id: string, formData: FormData): Prom
   await updateCustomer(id, parsed);
   revalidatePath("/customers");
   redirect("/customers");
+}
+
+export async function createCustomerQuick(input: {
+  companyName: string;
+  address: string;
+  contactName?: string;
+}): Promise<Customer> {
+  const parsed = quickAddSchema.parse(input);
+  const customer = await createCustomer({ ...parsed, honorific: "御中" });
+  revalidatePath("/customers");
+  return customer;
 }
 
 export async function deleteCustomerAction(id: string): Promise<void> {
