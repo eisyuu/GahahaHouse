@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import type { Customer } from "@/lib/types";
 import { createCustomerQuick } from "@/app/customers/actions";
 
@@ -14,6 +14,8 @@ const inputClass =
 
 export function CustomerSelectField({ customers: initialCustomers, defaultCustomerId }: Props) {
   const [customers, setCustomers] = useState(initialCustomers);
+  const defaultCustomer = initialCustomers.find((c) => c.id === defaultCustomerId);
+  const [query, setQuery] = useState(defaultCustomer?.companyName ?? "");
   const [selectedId, setSelectedId] = useState(defaultCustomerId ?? "");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [companyName, setCompanyName] = useState("");
@@ -21,6 +23,19 @@ export function CustomerSelectField({ customers: initialCustomers, defaultCustom
   const [contactName, setContactName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    searchRef.current?.setCustomValidity(
+      selectedId ? "" : "リストにある顧客名を入力するか、新しい顧客を登録してください。",
+    );
+  }, [selectedId]);
+
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    const match = customers.find((c) => c.companyName === value);
+    setSelectedId(match ? match.id : "");
+  }
 
   function handleQuickAdd() {
     if (!companyName.trim() || !address.trim()) {
@@ -39,6 +54,7 @@ export function CustomerSelectField({ customers: initialCustomers, defaultCustom
           [...prev, customer].sort((a, b) => a.companyName.localeCompare(b.companyName, "ja")),
         );
         setSelectedId(customer.id);
+        setQuery(customer.companyName);
         setShowQuickAdd(false);
         setCompanyName("");
         setAddress("");
@@ -52,22 +68,23 @@ export function CustomerSelectField({ customers: initialCustomers, defaultCustom
   return (
     <div>
       <div className="flex gap-2">
-        <select
-          name="customerId"
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
+        <input
+          ref={searchRef}
+          type="text"
+          value={query}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          list="customer-options"
+          placeholder="顧客名を入力して検索"
+          autoComplete="off"
           required
           className={inputClass}
-        >
-          <option value="" disabled>
-            選択してください
-          </option>
+        />
+        <datalist id="customer-options">
           {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.companyName}
-            </option>
+            <option key={customer.id} value={customer.companyName} />
           ))}
-        </select>
+        </datalist>
+        <input type="hidden" name="customerId" value={selectedId} />
         <button
           type="button"
           onClick={() => setShowQuickAdd((v) => !v)}
