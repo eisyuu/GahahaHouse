@@ -2,6 +2,8 @@ import { listCustomers } from "@/lib/db/customers";
 import { CaseForm } from "@/components/CaseForm";
 import { createCaseAction } from "../actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewCasePage() {
   const customers = await listCustomers();
 

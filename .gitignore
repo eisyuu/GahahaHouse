@@ -39,9 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# local data store (regenerated automatically at runtime)
-/data/
-
-# generated PDF output (regenerated automatically at runtime)
-/documents/

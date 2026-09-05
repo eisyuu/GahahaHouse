@@ -3,6 +3,8 @@ import { listCases } from "@/lib/db/cases";
 import { listCustomers } from "@/lib/db/customers";
 import { CaseTable } from "@/components/CaseTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function CasesPage() {
   const [cases, customers] = await Promise.all([listCases(), listCustomers()]);
   const customersById = new Map(customers.map((c) => [c.id, c]));

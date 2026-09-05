@@ -1,4 +1,3 @@
-import path from "path";
 import type { DocType } from "@/lib/types";
 
 const DOC_TYPE_LABEL: Record<DocType, string> = {
@@ -22,19 +21,13 @@ export function buildDocumentFileName(
   return `${documentNumber}_${sanitizeForFileName(customerName)}_${docTypeLabel(docType)}.pdf`;
 }
 
-export function buildDocumentDir(docType: DocType, year: number): string {
-  return path.join(process.cwd(), "documents", docTypeLabel(docType), String(year));
-}
-
-export function buildDocumentFilePath(
+export function buildDocumentBlobPath(
   docType: DocType,
   year: number,
   documentNumber: string,
   customerName: string,
-): { dir: string; fileName: string; absolutePath: string; relativePath: string } {
-  const dir = buildDocumentDir(docType, year);
+): { fileName: string; pathname: string } {
   const fileName = buildDocumentFileName(docType, documentNumber, customerName);
-  const absolutePath = path.join(dir, fileName);
-  const relativePath = path.relative(process.cwd(), absolutePath);
-  return { dir, fileName, absolutePath, relativePath };
+  const pathname = `${docTypeLabel(docType)}/${year}/${fileName}`;
+  return { fileName, pathname };
 }

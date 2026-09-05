@@ -1,7 +1,7 @@
 import { incrementCounter } from "@/lib/db/counters";
 import { mutateCase } from "@/lib/db/cases";
 import type { CaseRecord, DocType, DocumentMeta } from "@/lib/types";
-import { buildDocumentFilePath } from "@/lib/files/paths";
+import { buildDocumentBlobPath } from "@/lib/files/paths";
 
 function metaKey(docType: DocType): "quotationMeta" | "invoiceMeta" {
   return docType === "quotation" ? "quotationMeta" : "invoiceMeta";
@@ -23,7 +23,7 @@ export async function getOrCreateDocumentMeta(
     const year = new Date(current.issueDate).getFullYear();
     const sequence = await incrementCounter(`${docType}:${year}`);
     const documentNumber = `${year}-${String(sequence).padStart(4, "0")}`;
-    const { fileName, relativePath } = buildDocumentFilePath(
+    const { fileName, pathname } = buildDocumentBlobPath(
       docType,
       year,
       documentNumber,
@@ -33,7 +33,7 @@ export async function getOrCreateDocumentMeta(
     const meta: DocumentMeta = {
       documentNumber,
       issuedAt: new Date().toISOString(),
-      filePath: relativePath,
+      filePath: pathname,
       fileName,
     };
 

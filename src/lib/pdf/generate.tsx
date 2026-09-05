@@ -1,5 +1,4 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { put } from "@vercel/blob";
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { CaseRecord, CompanyProfile, Customer, DocType } from "@/lib/types";
 import { computeTaxSummary } from "@/lib/calc/taxCalc";
@@ -25,7 +24,7 @@ export async function generateDocument(
   caseRecord: CaseRecord,
   customer: Customer,
   company: CompanyProfile,
-): Promise<{ buffer: Buffer; fileName: string; absolutePath: string }> {
+): Promise<{ buffer: Buffer; fileName: string }> {
   if (docType === "invoice") {
     assertInvoiceReady(company);
   }
@@ -49,9 +48,12 @@ export async function generateDocument(
     />,
   );
 
-  const absolutePath = path.join(process.cwd(), meta.filePath);
-  await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-  await fs.writeFile(absolutePath, buffer);
+  await put(meta.filePath, buffer, {
+    access: "public",
+    contentType: "application/pdf",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+  });
 
-  return { buffer, fileName: meta.fileName, absolutePath };
+  return { buffer, fileName: meta.fileName };
 }

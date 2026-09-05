@@ -2,6 +2,8 @@ import Link from "next/link";
 import { listCustomers } from "@/lib/db/customers";
 import { CustomerTable } from "@/components/CustomerTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function CustomersPage() {
   const customers = await listCustomers();
 

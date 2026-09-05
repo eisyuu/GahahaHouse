@@ -2,6 +2,8 @@ import { getCompanyProfile } from "@/lib/db/company";
 import { CompanyForm } from "@/components/CompanyForm";
 import { updateCompanyAction } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompanyPage() {
   const company = await getCompanyProfile();
 

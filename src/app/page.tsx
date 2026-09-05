@@ -3,6 +3,8 @@ import { getCompanyProfile } from "@/lib/db/company";
 import { listCases } from "@/lib/db/cases";
 import { listCustomers } from "@/lib/db/customers";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const [company, cases, customers] = await Promise.all([
     getCompanyProfile(),
