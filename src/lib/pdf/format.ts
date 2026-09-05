@@ -1,5 +1,5 @@
 export function formatYen(value: number): string {
-  return `¥${value.toLocaleString("ja-JP")}`;
+  return `¥${Math.round(value).toLocaleString("ja-JP")}`;
 }
 
 export function formatJapaneseDate(isoDate: string | undefined): string {

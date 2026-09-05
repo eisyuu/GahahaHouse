@@ -116,7 +116,7 @@ export function LineItemsEditor({ initialLineItems }: Props) {
                 <input
                   name="unitPrice"
                   type="number"
-                  step="any"
+                  step="1"
                   placeholder="0"
                   value={row.unitPrice}
                   onChange={(e) => updateRow(row.key, { unitPrice: e.target.value })}

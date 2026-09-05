@@ -6,10 +6,14 @@ type Store = { cases: CaseRecord[] };
 const DEFAULT: Store = { cases: [] };
 
 function recomputeAmounts(lineItems: LineItem[]): LineItem[] {
-  return lineItems.map((item) => ({
-    ...item,
-    amount: Math.round(item.quantity * item.unitPrice),
-  }));
+  return lineItems.map((item) => {
+    const unitPrice = Math.round(item.unitPrice);
+    return {
+      ...item,
+      unitPrice,
+      amount: Math.round(item.quantity * unitPrice),
+    };
+  });
 }
 
 export async function listCases(): Promise<CaseRecord[]> {
