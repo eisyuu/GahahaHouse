@@ -61,11 +61,18 @@ export function LineItemsEditor({ initialLineItems }: Props) {
     subtotal += amount;
     taxableByRate.set(row.taxRate, (taxableByRate.get(row.taxRate) ?? 0) + amount);
   }
-  let tax = 0;
+  // 合計金額が10円単位になるよう切り捨て、その差額を消費税額とする
+  let exactTax = 0;
+  let hasTaxableRate = false;
   for (const [rate, taxableAmount] of taxableByRate) {
-    if (rate !== 0) tax += Math.round(taxableAmount * (rate / 100));
+    if (rate !== 0) {
+      exactTax += taxableAmount * (rate / 100);
+      hasTaxableRate = true;
+    }
   }
-  const summary = { subtotal, tax };
+  const total = hasTaxableRate ? Math.floor((subtotal + exactTax) / 10) * 10 : subtotal;
+  const tax = total - subtotal;
+  const summary = { subtotal, tax, total };
 
   return (
     <div>
@@ -172,7 +179,7 @@ export function LineItemsEditor({ initialLineItems }: Props) {
           </div>
           <div className="flex justify-between border-t border-gray-300 py-1 font-semibold">
             <span>合計</span>
-            <span>{formatYen(summary.subtotal + summary.tax)}</span>
+            <span>{formatYen(summary.total)}</span>
           </div>
         </div>
       </div>
