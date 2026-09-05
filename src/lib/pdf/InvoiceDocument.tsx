@@ -112,13 +112,13 @@ export function InvoiceDocument({ caseRecord, customer, company, taxSummary, doc
 
         {hasBankInfo ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>お振込先</Text>
             <Text style={styles.sectionBody}>
               請求明細をご確認の上、お振込期日までに下記口座へお振込みをお願い致します。
               {"\n"}
               尚、お振込手数料は御社ご負担にてお願い致します。
             </Text>
-            <Text style={[styles.sectionBody, { marginTop: 8 }]}>
+            <Text style={styles.sectionTitle}>お振込先</Text>
+            <Text style={styles.sectionBody}>
               {company.bankName} {company.bankBranch ? `${company.bankBranch}支店` : ""}
               {"\n"}
               {company.bankAccountType ?? "普通"} {company.bankAccountNumber}
