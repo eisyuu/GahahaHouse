@@ -116,6 +116,8 @@ export function InvoiceDocument({ caseRecord, customer, company, taxSummary, doc
               請求明細をご確認の上、お振込期日までに下記口座へお振込みをお願い致します。
               {"\n"}
               尚、お振込手数料は御社ご負担にてお願い致します。
+              {"\n"}
+              {"\n"}
             </Text>
             <Text style={styles.sectionTitle}>お振込先</Text>
             <Text style={styles.sectionBody}>
