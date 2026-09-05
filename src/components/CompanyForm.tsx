@@ -1,9 +1,15 @@
+"use client";
+
+import { useActionState } from "react";
 import type { CompanyProfile } from "@/lib/types";
+import type { CompanyActionState } from "@/app/company/actions";
 
 interface Props {
   company: CompanyProfile | null;
-  action: (formData: FormData) => void;
+  action: (prevState: CompanyActionState, formData: FormData) => Promise<CompanyActionState>;
 }
+
+const initialState: CompanyActionState = { status: "idle" };
 
 const inputClass =
   "w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none";
@@ -11,8 +17,10 @@ const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 const sectionTitle = "text-base font-semibold text-gray-900 mt-6 mb-2 first:mt-0";
 
 export function CompanyForm({ company, action }: Props) {
+  const [state, formAction, isPending] = useActionState(action, initialState);
+
   return (
-    <form action={action} className="space-y-4 max-w-xl">
+    <form action={formAction} className="space-y-4 max-w-xl">
       <h2 className={sectionTitle}>基本情報</h2>
       <div>
         <label className={labelClass}>会社名 *</label>
@@ -98,11 +106,19 @@ export function CompanyForm({ company, action }: Props) {
         />
       </div>
 
+      {state.status === "success" && (
+        <p className="text-sm text-green-700">{state.message}</p>
+      )}
+      {state.status === "error" && (
+        <p className="text-sm text-red-700">{state.message}</p>
+      )}
+
       <button
         type="submit"
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        disabled={isPending}
+        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
-        保存する
+        {isPending ? "保存中…" : "保存する"}
       </button>
     </form>
   );

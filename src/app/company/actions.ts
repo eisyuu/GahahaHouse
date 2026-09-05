@@ -24,8 +24,16 @@ function emptyToUndefined(value: FormDataEntryValue | null): string | undefined 
   return str ? str : undefined;
 }
 
-export async function updateCompanyAction(formData: FormData): Promise<void> {
-  const parsed = schema.parse({
+export type CompanyActionState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+};
+
+export async function updateCompanyAction(
+  _prevState: CompanyActionState,
+  formData: FormData,
+): Promise<CompanyActionState> {
+  const result = schema.safeParse({
     companyName: formData.get("companyName")?.toString().trim(),
     representativeName: emptyToUndefined(formData.get("representativeName")),
     postalCode: emptyToUndefined(formData.get("postalCode")),
@@ -40,7 +48,12 @@ export async function updateCompanyAction(formData: FormData): Promise<void> {
     bankAccountHolder: emptyToUndefined(formData.get("bankAccountHolder")),
   });
 
-  await saveCompanyProfile(parsed);
+  if (!result.success) {
+    return { status: "error", message: "入力内容を確認してください。" };
+  }
+
+  await saveCompanyProfile(result.data);
   revalidatePath("/company");
   revalidatePath("/");
+  return { status: "success", message: "保存しました。" };
 }
